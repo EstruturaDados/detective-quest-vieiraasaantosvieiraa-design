@@ -2,106 +2,76 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Estrutura que representa uma sala da mansão
-typedef struct Sala {
-    char nome[50];
-    struct Sala *esquerda;
-    struct Sala *direita;
-} Sala;
+struct No {
+    char valor[50];
+    struct No* esquerda;
+    struct No* direita;
+};
 
-// -------------------------------------------------
-// criarSala()
-// Cria dinamicamente uma sala com o nome informado
-// -------------------------------------------------
-Sala* criarSala(char nome[]) {
-    Sala *novaSala = (Sala*) malloc(sizeof(Sala));
+struct No* criarNo(char* valor) {
+    struct No* novo = (struct No*) malloc(sizeof(struct No));
 
-    if (novaSala != NULL) {
-        strcpy(novaSala->nome, nome);
-        novaSala->esquerda = NULL;
-        novaSala->direita = NULL;
-    }
+    strcpy(novo->valor, valor);
+    novo->esquerda = NULL;
+    novo->direita = NULL;
 
-    return novaSala;
+    return novo;
 }
 
-// -------------------------------------------------
-// explorarSalas()
-// Permite ao jogador navegar pela árvore
-// -------------------------------------------------
-void explorarSalas(Sala *atual) {
-    char opcao;
-
-    while (atual != NULL) {
-        printf("\n=================================\n");
-        printf("Voce esta em: %s\n", atual->nome);
-
-        // Verifica se chegou a uma folha
-        if (atual->esquerda == NULL && atual->direita == NULL) {
-            printf("Fim do caminho! Nenhuma passagem encontrada.\n");
-            break;
-        }
-
-        printf("\nEscolha um caminho:\n");
-
-        if (atual->esquerda != NULL)
-            printf("e - Ir para a esquerda\n");
-
-        if (atual->direita != NULL)
-            printf("d - Ir para a direita\n");
-
-        printf("s - Sair da exploracao\n");
-
-        printf("Opcao: ");
-        scanf(" %c", &opcao);
-
-        if (opcao == 's') {
-            printf("Exploracao encerrada.\n");
-            break;
-        }
-        else if (opcao == 'e') {
-            if (atual->esquerda != NULL)
-                atual = atual->esquerda;
-            else
-                printf("Nao existe caminho a esquerda!\n");
-        }
-        else if (opcao == 'd') {
-            if (atual->direita != NULL)
-                atual = atual->direita;
-            else
-                printf("Nao existe caminho a direita!\n");
-        }
-        else {
-            printf("Opcao invalida!\n");
-        }
+void preOrdem(struct No* raiz) {
+    if (raiz != NULL) {
+        printf("%s ", raiz->valor);
+        preOrdem(raiz->esquerda);
+        preOrdem(raiz->direita);
     }
 }
 
-// -------------------------------------------------
-// main()
-// Monta o mapa da mansao e inicia a exploracao
-// -------------------------------------------------
+void emOrdem(struct No* raiz) {
+    if (raiz != NULL) {
+        emOrdem(raiz->esquerda);
+        printf("%s ", raiz->valor);
+        emOrdem(raiz->direita);
+    }
+}
+
+void posOrdem(struct No* raiz) {
+    if (raiz != NULL) {
+        posOrdem(raiz->esquerda);
+        posOrdem(raiz->direita);
+        printf("%s ", raiz->valor);
+    }
+}
+
+void liberar(struct No* raiz) {
+    if (raiz != NULL) {
+        liberar(raiz->esquerda);
+        liberar(raiz->direita);
+        free(raiz);
+    }
+}
+
 int main() {
 
-    // Criação manual da árvore da mansão
-    Sala *hall = criarSala("Hall de Entrada");
+    struct No* raiz = criarNo("Hall de Entrada");
 
-    hall->esquerda = criarSala("Biblioteca");
-    hall->direita = criarSala("Sala de Estar");
+    raiz->esquerda = criarNo("Sala de Estar");
+    raiz->direita = criarNo("Biblioteca");
 
-    hall->esquerda->esquerda = criarSala("Escritorio");
-    hall->esquerda->direita = criarSala("Sala Secreta");
+    raiz->esquerda->esquerda = criarNo("Quarto");
 
-    hall->direita->esquerda = criarSala("Cozinha");
-    hall->direita->direita = criarSala("Jardim");
+    printf("Pre-Ordem: ");
+    preOrdem(raiz);
+    printf("\n");
 
-    printf("=================================\n");
-    printf("      DETECTIVE QUEST\n");
-    printf(" Explore a mansao e encontre\n");
-    printf(" pistas para descobrir o culpado!\n");
-    printf("=================================\n");
+    printf("Em-Ordem: ");
+    emOrdem(raiz);
+    printf("\n");
 
-    explorarSalas(hall);
+    printf("Pos-Ordem: ");
+    posOrdem(raiz);
+    printf("\n");
+
+    liberar(raiz);
 
     return 0;
 }
